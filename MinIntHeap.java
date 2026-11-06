@@ -138,8 +138,8 @@ public class MinIntHeap implements Heap {
      */
     @Override
     public int peek() {
-        // TODO: throw NoSuchElementException if empty, otherwise return the root
-        return 0;
+        if (size == 0) throw new NoSuchElementException("heap is empty");
+        return items[0];
     }
 
     /**
@@ -150,11 +150,10 @@ public class MinIntHeap implements Heap {
      */
     @Override
     public void insert(int item) {
-        // TODO:
-        // 1. make sure there is room
-        // 2. put item at the last position
-        // 3. increase size
-        // 4. heapifyUp(size - 1)
+        ensureExtraCapacity();
+        items[size] = item;
+        size++;
+        heapifyUp(size - 1);
     }
 
     /**
@@ -166,14 +165,12 @@ public class MinIntHeap implements Heap {
      */
     @Override
     public int remove() {
-        // TODO:
-        // 1. throw NoSuchElementException if empty
-        // 2. store the root (min)
-        // 3. move the last element to the root
-        // 4. decrease size
-        // 5. heapifyDown(0)
-        // 6. return min
-        return 0;
+        if (size == 0) throw new NoSuchElementException("heap is empty");
+        int min = items[0];
+        items[0] = items[size - 1];
+        size--;
+        heapifyDown(0);
+        return min;
     }
 
     // ---------- heapify ----------
@@ -185,8 +182,10 @@ public class MinIntHeap implements Heap {
      * @param index index of the element to move up
      */
     private void heapifyUp(int index) {
-        // TODO: if it has a parent and the parent is BIGGER,
-        //       swap them and call heapifyUp on the parent index
+        if (hasParent(index) && parent(index) > items[index]) {
+            swap(getParentIndex(index), index);
+            heapifyUp(getParentIndex(index));
+        }
     }
 
     /**
@@ -197,9 +196,17 @@ public class MinIntHeap implements Heap {
      * @param index index of the element to move down
      */
     private void heapifyDown(int index) {
-        // TODO: find the index of the smallest among the node and its children
-        //       if it is not the node itself, swap them and
-        //       call heapifyDown on that child index
+        int smallest = index;
+        if (hasLeftChild(index) && leftChild(index) < items[smallest]) {
+            smallest = getLeftChildIndex(index);
+        }
+        if (hasRightChild(index) && rightChild(index) < items[smallest]) {
+            smallest = getRightChildIndex(index);
+        }
+        if (smallest != index) {
+            swap(index, smallest);
+            heapifyDown(smallest);
+        }
     }
 
     // ---------- quick test ----------

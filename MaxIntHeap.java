@@ -125,11 +125,11 @@ public class MaxIntHeap implements Heap {
     /** {@inheritDoc} */
     @Override
     public int size() { return size; }
- 
+
     /** {@inheritDoc} */
     @Override
     public boolean isEmpty() { return size == 0; }
- 
+
     /**
      * Returns the largest value without removing it. Runs in O(1).
      *
@@ -138,10 +138,10 @@ public class MaxIntHeap implements Heap {
      */
     @Override
     public int peek() {
-        // TODO: throw NoSuchElementException if empty, otherwise return the root
-        return 0;
+        if (size == 0) throw new NoSuchElementException("heap is empty");
+        return items[0];
     }
- 
+
     /**
      * Inserts a value: places it at the last position, then heapifies up.
      * Runs in O(log n).
@@ -150,13 +150,12 @@ public class MaxIntHeap implements Heap {
      */
     @Override
     public void insert(int item) {
-        // TODO:
-        // 1. make sure there is room
-        // 2. put item at the last position
-        // 3. increase size
-        // 4. heapifyUp(size - 1)
+        ensureExtraCapacity();
+        items[size] = item;
+        size++;
+        heapifyUp(size - 1);
     }
- 
+
     /**
      * Removes and returns the largest value: moves the last element to the
      * root, then heapifies down. Runs in O(log n).
@@ -166,16 +165,14 @@ public class MaxIntHeap implements Heap {
      */
     @Override
     public int remove() {
-        // TODO:
-        // 1. throw NoSuchElementException if empty
-        // 2. store the root (max)
-        // 3. move the last element to the root
-        // 4. decrease size
-        // 5. heapifyDown(0)
-        // 6. return max
-        return 0;
+        if (size == 0) throw new NoSuchElementException("heap is empty");
+        int max = items[0];
+        items[0] = items[size - 1];
+        size--;
+        heapifyDown(0);
+        return max;
     }
- 
+
     // ---------- heapify ----------
     /**
      * Restores heap order after an insert by moving the element at index up.
@@ -185,10 +182,12 @@ public class MaxIntHeap implements Heap {
      * @param index index of the element to move up
      */
     private void heapifyUp(int index) {
-        // TODO: if it has a parent and the parent is SMALLER,
-        //       swap them and call heapifyUp on the parent index
+        if (hasParent(index) && parent(index) < items[index]) {
+            swap(getParentIndex(index), index);
+            heapifyUp(getParentIndex(index));
+        }
     }
- 
+
     /**
      * Restores heap order after a remove by moving the element at index down.
      * If its larger child is bigger, swap them and recurse from that child.
@@ -197,11 +196,19 @@ public class MaxIntHeap implements Heap {
      * @param index index of the element to move down
      */
     private void heapifyDown(int index) {
-        // TODO: find the index of the largest among the node and its children
-        //       if it is not the node itself, swap them and
-        //       call heapifyDown on that child index
+        int largest = index;
+        if (hasLeftChild(index) && leftChild(index) > items[largest]) {
+            largest = getLeftChildIndex(index);
+        }
+        if (hasRightChild(index) && rightChild(index) > items[largest]) {
+            largest = getRightChildIndex(index);
+        }
+        if (largest != index) {
+            swap(index, largest);
+            heapifyDown(largest);
+        }
     }
- 
+
     // ---------- quick test ----------
     /**
      * Quick test: inserts the example values, then removes them all.
@@ -213,7 +220,7 @@ public class MaxIntHeap implements Heap {
         Heap heap = new MaxIntHeap();
         int[] values = {16, 14, 10, 8, 7, 9, 3, 2, 4, 1, 15};
         for (int v : values) heap.insert(v);
- 
+
         System.out.println("peek: " + heap.peek());    // expect 16
         while (!heap.isEmpty()) {
             System.out.print(heap.remove() + " ");       // expect 16 15 14 10 9 8 7 4 3 2 1
